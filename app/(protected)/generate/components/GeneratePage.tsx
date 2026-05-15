@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import MermaidDiagram from "./mermaidDiagram";
+import CopyDiagramButton from "./CopyDiagramButton";
 import { ArchitectureData } from "../utils/types";
+import { cleanMermaidString } from "../utils/cleanMermaidString";
 import MicroservicesSection from "./MicroservicesSection";
 import EntitiesSection from "./EntitiesSection";
 import ApiRoutesSection from "./ApiRoutesSection";
@@ -28,24 +30,6 @@ export default function GeneratePage() {
   const [generatedData, setGeneratedData] = useState<ArchitectureData | null>(
     null,
   );
-
-  function cleanMermaidString(input: string | undefined | null): string {
-    if (!input || typeof input !== "string") return "";
-
-    return (
-      input
-        // Remove code block markers if present (for backward compatibility)
-        .replace(/^```mermaid\n?/g, "")
-        .replace(/\n?```$/g, "")
-        .replace(/```/g, "")
-        // Convert escaped newlines to actual newlines
-        .replace(/\\n/g, "\n")
-        // Handle any other escaped characters
-        .replace(/\\"/g, '"')
-        .replace(/\\'/g, "'")
-        .trim()
-    );
-  }
 
   const handleGenerate = async () => {
     const result = await generate(userInput);
@@ -101,6 +85,35 @@ export default function GeneratePage() {
         }
 
         const parsedData: ArchitectureData = JSON.parse(cleanedOutput);
+
+        // 🎨 Extract mermaid diagram if present in the raw result.output
+        const mermaidStartMarker = "```mermaid";
+        const mermaidStart = result.output.indexOf(mermaidStartMarker);
+
+        if (mermaidStart !== -1) {
+          // Extract from after the ```mermaid marker
+          let mermaidText = result.output.slice(
+            mermaidStart + mermaidStartMarker.length,
+          );
+
+          // Find the first closing ``` after the mermaid start
+          const mermaidEnd = mermaidText.indexOf("```");
+          if (mermaidEnd !== -1) {
+            mermaidText = mermaidText.slice(0, mermaidEnd);
+          }
+
+          // Clean up the mermaid diagram
+          mermaidText = mermaidText
+            .replace(/```mermaid/g, "")
+            .replace(/```/g, "")
+            .trim();
+
+          // Add to parsedData
+          if (mermaidText) {
+            parsedData["Architecture Diagram"] = mermaidText;
+          }
+        }
+
         setGeneratedData(parsedData);
       } catch (parseError) {
         console.error("Failed to parse generated data:", parseError);
@@ -193,7 +206,14 @@ export default function GeneratePage() {
 
           {generatedData["Architecture Diagram"] && (
             <section>
-              <h2 className="text-2xl font-bold mb-4">Architecture Diagram</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold">Architecture Diagram</h2>
+                <CopyDiagramButton
+                  code={cleanMermaidString(
+                    generatedData["Architecture Diagram"],
+                  )}
+                />
+              </div>
               <MermaidDiagram
                 chart={cleanMermaidString(
                   generatedData["Architecture Diagram"],
