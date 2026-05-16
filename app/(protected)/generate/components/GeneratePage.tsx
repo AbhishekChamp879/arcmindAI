@@ -24,7 +24,7 @@ export default function GeneratePage() {
     isLoading,
     error: generateError,
   } = useGenerateSystem(refetch);
-  const {register, watch} = useForm();
+  const { register, watch } = useForm();
   const [error, setError] = useState<string | null>(null);
   const [generatedData, setGeneratedData] = useState<ArchitectureData | null>(
     null,
@@ -118,22 +118,21 @@ export default function GeneratePage() {
     }
   };
 
-  
   const userInput = watch("userInput", "");
-  
+
   const MAX_INPUT_LENGTH = 2000;
-  const counterColor = userInput.length === MAX_INPUT_LENGTH
-                    ? "text-red-500 font-bold"
-                    : userInput.length >= 1800
-                    ? "text-orange-500 font-medium"
-                    : userInput.length >= 1500
-                    ? "text-amber-400"
-                    : "text-muted-foreground";
+  const counterColor =
+    userInput.length === MAX_INPUT_LENGTH
+      ? "text-red-500 font-bold"
+      : userInput.length >= 1800
+        ? "text-orange-500 font-medium"
+        : userInput.length >= 1500
+          ? "text-amber-400"
+          : "text-muted-foreground";
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex gap-4 items-start">
-
         {/* Input + counter wrapper */}
         <div className="flex-1">
           <Input
@@ -150,7 +149,7 @@ export default function GeneratePage() {
                 ${userInput.length > 0 ? "opacity-100" : "opacity-0"}
               `}
             >
-                {userInput.length}/{MAX_INPUT_LENGTH}
+              {userInput.length}/{MAX_INPUT_LENGTH}
             </p>
           </div>
         </div>
