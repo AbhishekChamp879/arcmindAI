@@ -1,46 +1,53 @@
 "use client";
 
-import { AlertTriangle, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 
 interface RateLimitBannerProps {
   secondsLeft: number;
+  totalSeconds: number;
 }
 
-export function RateLimitBanner({ secondsLeft }: RateLimitBannerProps) {
+export function RateLimitBanner({
+  secondsLeft,
+  totalSeconds,
+}: RateLimitBannerProps) {
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
   const timeDisplay =
     minutes > 0
       ? `${minutes}m ${seconds.toString().padStart(2, "0")}s`
       : `${seconds}s`;
-  const progress = Math.max(0, Math.min(100, (secondsLeft / 120) * 100));
+
+  const progress =
+    totalSeconds > 0
+      ? Math.max(0, Math.min(100, (secondsLeft / totalSeconds) * 100))
+      : 0;
 
   return (
     <div
       role="alert"
       aria-live="polite"
-      className="w-full rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-5 py-4 backdrop-blur-sm"
+      className="relative w-full overflow-hidden rounded-lg border border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950"
     >
-      <div className="flex items-start gap-3">
-        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-yellow-400" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-yellow-300">
-            Rate limit reached
-          </p>
-          <p className="mt-0.5 text-xs text-yellow-400/80">
-            You can generate one design every 2 minutes.
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5 rounded-lg bg-yellow-500/20 px-3 py-1.5 text-yellow-300 shrink-0">
-          <Clock className="h-4 w-4 animate-pulse" />
-          <span className="font-mono text-base font-bold tabular-nums">
-            {timeDisplay}
+      <div className="flex items-center justify-between gap-4">
+        {/* Left Side: Context */}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Clock className="h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400" />
+          <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400 truncate">
+            Rate limit cooldown active
           </span>
         </div>
+
+        {/* Right Side: High-contrast Countdown */}
+        <span className="font-mono text-xs font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+          {timeDisplay}
+        </span>
       </div>
-      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-yellow-900/40">
+
+      {/* Ultra-thin, low-profile progress bar aligned to the very bottom */}
+      <div className="absolute bottom-0 left-0 h-[2px] w-full bg-neutral-100 dark:bg-neutral-900">
         <div
-          className="h-full rounded-full bg-yellow-400 transition-all duration-1000 ease-linear"
+          className="h-full bg-amber-500 transition-all duration-1000 ease-linear dark:bg-amber-400"
           style={{ width: `${progress}%` }}
         />
       </div>

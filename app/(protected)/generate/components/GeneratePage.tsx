@@ -33,7 +33,7 @@ export default function GeneratePage() {
     retryAfter,
   } = useGenerateSystem(refetch);
 
-  const { secondsLeft, isRateLimited, startCountdown } =
+  const { secondsLeft, totalSeconds, isRateLimited, startCountdown } =
     useRateLimitCountdown();
   const { register, watch, setValue } = useForm();
   const [generatedData, setGeneratedData] = useState<ArchitectureData | null>(
@@ -234,7 +234,12 @@ export default function GeneratePage() {
         </div>
       )}
 
-      {isRateLimited && <RateLimitBanner secondsLeft={secondsLeft!} />}
+      {isRateLimited && (
+        <RateLimitBanner
+          secondsLeft={secondsLeft!}
+          totalSeconds={totalSeconds!}
+        />
+      )}
 
       {showError && !isRateLimited && (
         <Card className="border-destructive/20 bg-destructive/5 rounded-2xl">
